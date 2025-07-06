@@ -25,21 +25,57 @@ struct Piece {
 // ========== КЛАСС ИГРОВОЙ ДОСКИ ==========
 class CheckersBoard {
 private:
-    vector<vector<Piece>> board;
-    PieceColor current_player;
-    bool game_over;
-    int white_pieces;
-    int black_pieces;
-    PlayerType white_player;
-    PlayerType black_player;
+static const int SIZE = 8;  // Размер доски (8x8)
+     vector<vector<Piece>> board;  // Двумерный вектор для хранения состояния доски
+    PieceColor current_player;    // Текущий игрок (чей ход)
+    bool game_over;              // Флаг окончания игры
+    int white_pieces;           // Количество белых шашек
+    int black_pieces;           // Количество черных шашек
+    PlayerType white_player;     // Тип игрока для белых
+    PlayerType black_player;     // Тип игрока для черных
 
 public:
     // Конструктор
     CheckersBoard(PlayerType white = PlayerType::HUMAN,
         PlayerType black = PlayerType::COMPUTER);
+: current_player(PieceColor::WHITE), // Белые ходят первыми
+          game_over(false),                 // Игра только начинается
+          white_pieces(12),                 // Начальное количество белых шашек
+          black_pieces(12),                 // Начальное количество черных шашек
+          white_player(white),              // Установка типа игрока для белых
+          black_player(black) {             // Установка типа игрока для черных
+        board.resize(SIZE, vector<Piece>(SIZE));  // Инициализация доски
+        setupBoard();                            // Начальная расстановка шашек
+        srand(time(0));                          // Инициализация генератора случайных чисел
+    }
 
     // Настройка начальной позиции
-    void setupBoard();
+    void setupBoard() {
+        // Проходим по всем клеткам доски
+        for (int row = 0; row < SIZE; ++row) {
+            for (int col = 0; col < SIZE; ++col) {
+                // Шашки располагаются только на черных клетках (где сумма row+col нечетная)
+                if ((row + col) % 2 == 1) {
+                    // Первые 3 ряда - черные шашки
+                    if (row < 3) {
+                        board[row][col] = Piece(PieceColor::BLACK);
+                    } 
+                    // Последние 3 ряда - белые шашки
+                    else if (row > 4) {
+                        board[row][col] = Piece(PieceColor::WHITE);
+                    } 
+                    // Средние 2 ряда - пустые клетки
+                    else {
+                        board[row][col] = Piece(PieceColor::NONE);
+                    }
+                } 
+                // Белые клетки всегда пустые
+                else {
+                    board[row][col] = Piece(PieceColor::NONE);
+                }
+            }
+        }
+    }
 
     // Отображение доски
     void printBoard() const;
